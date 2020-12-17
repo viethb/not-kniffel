@@ -21,6 +21,6 @@ from game.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('game/', get_dice),
-    path('game/<str:dice_to_roll>', get_dice),
+    path('game/<str:dice_to_keep>', get_dice, name='game'),
     path('', get_score)
 ]

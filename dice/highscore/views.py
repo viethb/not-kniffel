@@ -5,14 +5,5 @@ from django.http import HttpResponse
 
 
 def get_score(request):
-
-    return HttpResponse(f'''
-    <!DOCTYPE>
-    <html>
-    <body>
-    <p>The highscore will be here</p>
-    <p>To play dice go to /game</p>
-    </body>
-    </html>
-    ''')
+    return render(request, 'highscore/landing.html', {'page_title': 'Nicht Kniffel'})
 

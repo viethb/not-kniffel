@@ -1,0 +1,64 @@
+{%  extends 'game/base.html' %}
+
+{% block content %}
+    {% for die in dice %}
+        <button>{{ die }}</button>
+    {% endfor %}
+
+    <table class="table table-striped" style="width: 20%">
+    <thead class="thead-dark">
+        <tr>
+            <th>Einsen</th>
+            <td>{{ scores.ones }}</td>
+        </tr>
+        <tr>
+            <th>Zweien</th>
+            <td>{{ scores.twos }}</td>
+        </tr>
+        <tr>
+            <th>Dreien</th>
+            <td>{{ scores.threes }}</td>
+        </tr>
+        <tr>
+            <th>Vieren</th>
+            <td>{{ scores.fours }}</td>
+        </tr>
+        <tr>
+            <th>Fünfen</th>
+            <td>{{ scores.fives }}</td>
+        </tr>
+        <tr>
+            <th>Sechsen</th>
+            <td>{{ scores.sixes }}</td>
+        </tr>
+        <tr>
+            <th>Drilling</th>
+            <td>{{ scores.triple }}</td>
+        </tr>
+        <tr>
+            <th>Vierling</th>
+            <td>{{ scores.quadrupel }}</td>
+        </tr>
+        <tr>
+            <th>Full House</th>
+            <td>{{ scores.fullhouse }}</td>
+        </tr>
+        <tr>
+            <th>Kl. Straße</th>
+            <td>{{ scores.small }}</td>
+        </tr>
+        <tr>
+            <th>Gr. Straße</th>
+            <td>{{ scores.big }}</td>
+        </tr>
+        <tr>
+            <th>Kniffel</th>
+            <td>{{ scores.kniffel }}</td>
+        </tr>
+        <tr>
+            <th>Chance</th>
+            <td>{{ scores.chance }}</td>
+        </tr>
+    </thead>
+    </table>
+{% endblock %}
