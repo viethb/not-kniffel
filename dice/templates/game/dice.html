@@ -1,6 +1,7 @@
 {%  extends 'game/base.html' %}
 
 {% block content %}
+    <h2>Spiel-ID: {{ game }}</h2>
     {% for die in dice %}
         <button>{{ die }}</button>
     {% endfor %}
@@ -9,55 +10,107 @@
     <thead class="thead-dark">
         <tr>
             <th>Einsen</th>
-            <td>{{ scores.ones }}</td>
+            {% if scores.ones >= 0 %}
+                <td>{{ scores.ones }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Zweien</th>
-            <td>{{ scores.twos }}</td>
+            {% if scores.twos >= 0 %}
+                <td>{{ scores.twos }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Dreien</th>
-            <td>{{ scores.threes }}</td>
+            {% if scores.threes >= 0 %}
+                <td>{{ scores.threes }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Vieren</th>
-            <td>{{ scores.fours }}</td>
+            {% if scores.fours >= 0 %}
+                <td>{{ scores.fours }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Fünfen</th>
-            <td>{{ scores.fives }}</td>
+            {% if scores.fives >= 0 %}
+                <td>{{ scores.fives }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Sechsen</th>
-            <td>{{ scores.sixes }}</td>
+            {% if scores.sixes >= 0 %}
+                <td>{{ scores.sixes }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Drilling</th>
-            <td>{{ scores.triple }}</td>
+            {% if scores.triple >= 0 %}
+                <td>{{ scores.triple }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Vierling</th>
-            <td>{{ scores.quadrupel }}</td>
+            {% if scores.quadruple >= 0 %}
+                <td>{{ scores.quadruple }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Full House</th>
-            <td>{{ scores.fullhouse }}</td>
+            {% if scores.fullhouse >= 0 %}
+                <td>{{ scores.fullhouse }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Kl. Straße</th>
-            <td>{{ scores.small }}</td>
+            {% if scores.small >= 0 %}
+                <td>{{ scores.small }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Gr. Straße</th>
-            <td>{{ scores.big }}</td>
+            {% if scores.big >= 0 %}
+                <td>{{ scores.big }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Kniffel</th>
-            <td>{{ scores.kniffel }}</td>
+            {% if scores.kniffel >= 0 %}
+                <td>{{ scores.kniffel }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
         <tr>
             <th>Chance</th>
-            <td>{{ scores.chance }}</td>
+            {% if scores.chance >= 0 %}
+                <td>{{ scores.chance }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
         </tr>
     </thead>
     </table>

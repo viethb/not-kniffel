@@ -20,7 +20,9 @@ from game.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('game/', get_dice),
-    path('game/<str:dice_to_keep>', get_dice, name='game'),
-    path('', get_score)
+    path('game/', new_game, name='game'),
+    path('game/<int:game_id>/<str:dice_to_keep>', roll_dice, name='roll'),
+path('game/<int:game_id>/', roll_dice),
+    path('game/add-user/', add_user, name='add_user'),
+    path('', get_score, name='get_score')
 ]
