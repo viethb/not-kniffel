@@ -1,57 +1,166 @@
 {%  extends 'game/base.html' %}
 
 {% block content %}
-    <h2>Spiel-ID: {{ game }}</h2>
-    {% for die in dice %}
-        <button>{{ die }}</button>
-    {% endfor %}
+    <h2>Spiel-ID: {{ game }}, Runde: {{ round }}</h2>
+    {%  if round != 1 %}
+        {% for die in dice %}
+            <button>{{ die }}</button>
+        {% endfor %}
+    {% endif %}
+    {% if round > 0 %}
+        <form action="" method="get" class="form-row">
+            {%  if round == 1 %}
+                <input type="hidden" value={{ dice_to_keep|default:" " }} name="dice_to_keep"/>
+            {%  else %}
+                <input type="text" value={{ dice_to_keep|default:" " }} name="dice_to_keep"/>
+            {% endif %}
+            <input type="submit" class="btn btn-primary btn-xs" value="Würfeln" name="roll"/>
+        </form>
+    {%  endif %}
 
     <table class="table table-striped" style="width: 20%">
     <thead class="thead-dark">
         <tr>
             <th>Einsen</th>
-            {% if scores.ones >= 0 %}
-                <td>{{ scores.ones }}</td>
+            {% if scores.ones < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                {% if scores.ones > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                    <td>{{ scores.ones }}</td>
+                    <td>
+                        <form action="" method="post" class="form-row">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{ scores.ones }}" name="points"/>
+                            <button type="submit" class="btn btn-primary btn-xs" value="ones" name="category">Eintragen</button>
+                        </form>
+                {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                    <td>{{ scores.ones|add:"300" }}</td>
+                {% endif %}
+                </td>
             {%  else %}
                 <td></td>
+                <td>
+                    <form action="" method="post" class="form-row">
+                        {% csrf_token %}
+                        <input type="hidden" value="0" name="points"/>
+                        <button type="submit" class="btn btn-primary btn-xs" value="ones" name="category">Streichen</button>
+                    </form>
+                </td>
             {% endif %}
         </tr>
         <tr>
             <th>Zweien</th>
-            {% if scores.twos >= 0 %}
-                <td>{{ scores.twos }}</td>
+            {% if scores.twos < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                {% if scores.twos > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                    <td>{{ scores.twos }}</td>
+                    <td>
+                        <form action="" method="post" class="form-row">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{ scores.twos }}" name="points"/>
+                            <button type="submit" class="btn btn-primary btn-xs" value="twos" name="category">Eintragen</button>
+                        </form>
+                {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                    <td>{{ scores.twos|add:"300" }}</td>
+                {% endif %}
+                </td>
             {%  else %}
                 <td></td>
             {% endif %}
         </tr>
         <tr>
             <th>Dreien</th>
-            {% if scores.threes >= 0 %}
-                <td>{{ scores.threes }}</td>
-            {%  else %}
-                <td></td>
-            {% endif %}
+            {%  with score=scores.threes category='threes' %}
+                {% if score < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                    {% if score > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                        <td>{{ score}}</td>
+                        <td>
+                            <form action="" method="post" class="form-row">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ score }}" name="points"/>
+                                <button type="submit" class="btn btn-primary btn-xs" value={{ category }} name="category">Eintragen</button>
+                            </form>
+                    {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                        <td>{{ score|add:"300" }}</td>
+                    {% endif %}
+                    </td>
+                {%  else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
         </tr>
         <tr>
             <th>Vieren</th>
-            {% if scores.fours >= 0 %}
-                <td>{{ scores.fours }}</td>
-            {%  else %}
-                <td></td>
-            {% endif %}
+            {%  with score=scores.fours category='fours' %}
+                {% if score < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                    {% if score > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                        <td>{{ score}}</td>
+                        <td>
+                            <form action="" method="post" class="form-row">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ score }}" name="points"/>
+                                <button type="submit" class="btn btn-primary btn-xs" value={{ category }} name="category">Eintragen</button>
+                            </form>
+                    {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                        <td>{{ score|add:"300" }}</td>
+                    {% endif %}
+                    </td>
+                {%  else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
         </tr>
         <tr>
             <th>Fünfen</th>
-            {% if scores.fives >= 0 %}
-                <td>{{ scores.fives }}</td>
+            {%  with score=scores.fives category='fives' %}
+                {% if score < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                    {% if score > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                        <td>{{ score}}</td>
+                        <td>
+                            <form action="" method="post" class="form-row">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ score }}" name="points"/>
+                                <button type="submit" class="btn btn-primary btn-xs" value={{ category }} name="category">Eintragen</button>
+                            </form>
+                    {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                        <td>{{ score|add:"300" }}</td>
+                    {% endif %}
+                    </td>
+                {%  else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        </tr>
+        <tr>
+            <th>Sechsen</th>
+            {%  with score=scores.sixes category='sixes' %}
+                {% if score < 1000 %} <!-- wenn Punkte gespeichert oder möglich -->
+                    {% if score > 0 %} <!-- wenn noch keine Punkte gespeichert -->
+                        <td>{{ score}}</td>
+                        <td>
+                            <form action="" method="post" class="form-row">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ score }}" name="points"/>
+                                <button type="submit" class="btn btn-primary btn-xs" value={{ category }} name="category">Eintragen</button>
+                            </form>
+                    {% else %} <!-- wenn bereits Punkte gespeichert wurden -->
+                        <td>{{ score|add:"300" }}</td>
+                    {% endif %}
+                    </td>
+                {%  else %}
+                    <td></td>
+                {% endif %}
+            {% endwith %}
+        </tr>
+        <tr>
+            <th>Bonus</th>
+            {% if scores.bonus < 1000 %}
+                <td>{{ scores.bonus|add:300 }}</td>
             {%  else %}
                 <td></td>
             {% endif %}
         </tr>
         <tr>
-            <th>Sechsen</th>
-            {% if scores.sixes >= 0 %}
-                <td>{{ scores.sixes }}</td>
+            <th>Oben</th>
+            {% if scores.upper_sum < 1000 %}
+                <td>{{ scores.upper_sum|add:300 }}</td>
             {%  else %}
                 <td></td>
             {% endif %}
@@ -108,6 +217,22 @@
             <th>Chance</th>
             {% if scores.chance >= 0 %}
                 <td>{{ scores.chance }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Unten</th>
+            {% if scores.lower_sum < 1000 %}
+                <td>{{ scores.lower_sum }}</td>
+            {%  else %}
+                <td></td>
+            {% endif %}
+        </tr>
+        <tr>
+            <th>Gesamt</th>
+            {% if scores.final_sum < 1000 %}
+                <td>{{ scores.final_sum }}</td>
             {%  else %}
                 <td></td>
             {% endif %}

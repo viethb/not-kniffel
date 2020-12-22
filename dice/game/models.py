@@ -15,3 +15,4 @@ class Game(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     score_sheet = jsonfield.JSONField()
     dice = jsonfield.JSONField()
+    round = models.IntegerField(default=0)
