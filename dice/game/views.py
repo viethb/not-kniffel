@@ -9,12 +9,12 @@ import random
 
 
 # Create your views here.
-def new_game(request):
+def new_game(request, user_id):
     game = Game(score_sheet={'ones': 1000, 'twos': 1000, 'threes': 1000, 'fours': 1000, 'fives': 1000, 'sixes': 1000,
                              'bonus': 1000, 'upper_sum': 1000,
                              'triple': 1000, 'quadruple': 1000, 'fullhouse': 1000, 'small': 1000, 'big': 1000,
                              'kniffel': 1000, 'chance': 1000, 'lower_sum': 1000, 'final_sum': 1000},
-                dice=[1, 1, 1, 1, 1], user=User.objects.get(id=1))
+                dice=[1, 1, 1, 1, 1], user=User.objects.get(id=user_id))
     game.save()
     game_id = game.id
     return HttpResponseRedirect(reverse_lazy('roll',
@@ -42,8 +42,19 @@ def roll_dice(request, game_id, dice_to_keep=''):
                                                  kwargs={'game_id': game_id}))
 
     if request.method == 'GET' and request.GET.get('roll'):
-        dice_to_keep = request.GET.get('dice_to_keep')
-        dice_to_keep = dice_to_keep if dice_to_keep is not None else '0'
+        #dice_to_keep = request.GET.get('dice_to_keep')
+        dice_to_keep = '0'
+        if request.GET.get('keep_1'):
+            dice_to_keep += '1'
+        if request.GET.get('keep_2'):
+            dice_to_keep += '2'
+        if request.GET.get('keep_3'):
+            dice_to_keep += '3'
+        if request.GET.get('keep_4'):
+            dice_to_keep += '4'
+        if request.GET.get('keep_5'):
+            dice_to_keep += '5'
+        #dice_to_keep = dice_to_keep if dice_to_keep is not None else '0'
 
     game = Game.objects.get(id=game_id)
     dice = game.dice
@@ -70,12 +81,22 @@ def roll_dice(request, game_id, dice_to_keep=''):
     game.dice = dice
     game.save()
     print(f'Scores-Variable: {scores}\n score_sheet: {game.score_sheet}')
-    return render(request, 'game/dice.html', {'page_title': 'Würfeln',
-                                              'game': game_id,
-                                              'dice': dice,
-                                              'dice_to_keep': dice_to_keep,
-                                              'scores': scores,
-                                              'round': game.round % 4})
+
+    template = 'game/dice.html' if (game.round % 4 != 1) else 'game/dice_round1.html'
+    return render(request, template, {'page_title': 'Würfeln',
+                                      'game': game_id,
+                                      'user': game.user.name,
+                                      'dice': dice,
+                                      'dice_to_keep': dice_to_keep,
+                                      'scores': scores,
+                                      'round': game.round % 4})
+    # else:
+    #     return render(request, 'game/dice_round1.html', {'page_title': 'Würfeln',
+    #                                               'game': game_id,
+    #                                               'dice': dice,
+    #                                               'dice_to_keep': dice_to_keep,
+    #                                               'scores': scores,
+    #                                               'round': game.round % 4})
 
 
 def count_numbers(dice):
@@ -105,31 +126,35 @@ def check_possible_points(game, numbers, category):
         print('In bonus')
         scores = game.score_sheet
         print(f'Scores: {scores}')
-        print(f'100 in list: {1000 not in {scores["ones"], scores["twos"], scores["threes"], scores["fours"], scores["fives"],scores["sixes"]}}')
+        print(f'1000 not in list: {1000 not in {scores["ones"], scores["twos"], scores["threes"], scores["fours"], scores["fives"],scores["sixes"]}}')
+        # prüft, ob alle oberen Kategorien ausgefüllt sind;
         if 1000 not in {scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
                         scores['sixes']}:
+            # wenn die Summe der oberen Punkte >= 63, wird der Bonus von 35 Punkten eingetragen
             if sum((scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
-                    scores['sixes'])) >= 63:
-                game.score_sheet['bonus'] = 35 -300
-                #game.save()
-                return 35
+                    scores['sixes'], 1800)) >= 63:
+                game.score_sheet['bonus'] = 35 - 300
+                # game.save()
+                return 35 - 300
             else:
                 game.score_sheet['bonus'] = -300
                 return -300
-    elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000:
+    elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000 and game.score_sheet['upper_sum'] == 1000:
         scores = game.score_sheet
         game.score_sheet['upper_sum'] = sum(
             (scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'], scores['sixes'],
-             scores['bonus'])) + 2100 - 300 # Die -300 Punkte aller 7 Summanden bereinigen
-        return game.score_sheet['upper_sum'] + 2100 - 300
+             scores['bonus'])) + 2100 - 300  # Die -300 Punkte aller 7 Summanden bereinigen
+        return game.score_sheet['upper_sum']
     elif category == 'triple':
         if not (3 in numbers or 4 in numbers or 5 in numbers):
             return points
+        points = 0
         for i in range(len(numbers)):
             points += (i + 1) * numbers[i]
     elif category == 'quadruple':
         if not (4 in numbers or 5 in numbers):
             return points
+        points = 0
         for i in range(len(numbers)):
             points += (i + 1) * numbers[i]
     elif category == 'fullhouse':
@@ -151,20 +176,22 @@ def check_possible_points(game, numbers, category):
         if 5 in numbers:
             return 50
     elif category == 'chance':
+        points = 0
         for i in range(len(numbers)):
             points += (i + 1) * numbers[i]
     elif category == 'lower_sum':
         scores = game.score_sheet
         lower_sum = sum((scores['triple'], scores['quadruple'], scores['fullhouse'], scores['small'], scores['big'],
-                        scores['kniffel'], scores['chance']))
+                        scores['kniffel'], scores['chance'], 2100))
+        print(f'lower_sum: {lower_sum}')
         if lower_sum < 1000:
-            game.score_sheet['lower_sum'] = lower_sum
-            return 0
+            game.score_sheet['lower_sum'] = lower_sum - 300
+            return lower_sum - 300
     elif category == 'final_sum':
-        final_sum = game.score_sheet['upper_sum'] + game.score_sheet['lower_sum']
+        final_sum = game.score_sheet['upper_sum'] + game.score_sheet['lower_sum'] + 600
         if final_sum < 1000:
-            game.score_sheet['final_sum'] = final_sum
-            return final_sum
+            game.score_sheet['final_sum'] = final_sum - 300
+            return final_sum - 300
     if points == 0:
         return 1000
     return points
@@ -264,9 +291,10 @@ def add_user(request):
     if request.method == 'POST':
         form = UsersForm(request.POST)
         if form.is_valid():
-            form.save()
+            new_user = form.save()
             messages.success(request, 'User gespeichert.')
-            return HttpResponseRedirect(reverse_lazy('get_score'))
+            print(f'user_id: {new_user.id}')
+            return HttpResponseRedirect(reverse_lazy('new_game', kwargs={'user_id': new_user.id}))
         else:
             messages.error(request, 'Name ungültig.')
     else:
