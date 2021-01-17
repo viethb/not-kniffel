@@ -1,0 +1,120 @@
+/* sanitize.css ist im index.html verlinkt */
+*,
+*::after,
+*::before{
+    box-sizing: border-box;
+}
+
+:root{
+    font-family: sans-serif;
+    font-size: 1rem;
+    --bgColor: #EDEDED;
+    --headlineColor: #17452E;
+    --accentColor: #3A855F;
+    --highlightColor: #71D1A1;
+    --warningColor: #B3433A;
+}
+
+body {
+    background: var(--bgColor)!important;
+    text-align: center;
+
+}
+
+button {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    z-index: 100;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+input[type="checkbox"] {
+    display: none;
+}
+
+img {
+    width: 6vw;
+    height: auto;
+}
+
+label{
+    display: inline-block;
+    margin-bottom: .5rem;
+    padding: 5px;
+}
+
+:checked + label {
+    background-color: var(--accentColor);
+    border: 5px solid var(--accentColor);
+    border-radius: 20%;
+    padding: 0;
+}
+
+table {
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid var(--headlineColor);
+    /*border-collapse: separate !important;*/
+    /*border-radius: 5px;*/
+    width: 20%;
+}
+
+td {
+    height: 30px;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+}
+
+tr {
+    line-height: 0;
+    font-size: 0.8rem;
+    border: 1px solid var(--headlineColor);
+}
+
+tr:nth-child(even) {
+  background-color: lightgrey;
+}
+
+th {
+    background-color: var(--accentColor);
+    color: var(--bgColor);
+    width: 50%;
+}
+
+#dicecontainer {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#roll {
+    margin-left: auto;
+    height: auto;
+    background-color: var(--highlightColor);
+}
+
+/*.btn-primary {*/
+/*    line-height: 5px;*/
+/*    font-size: x-small;*/
+/*    padding: 1px;*/
+/*    font-size: 0.9rem;*/
+/*}*/
+
+.possible-points {
+    background-color: var(--highlightColor);
+}
+
+.no-possible-points{
+    opacity: 0;
+}
+
+.no-possible-points:hover {
+    opacity: 1;
+    background-color: var(--warningColor);
+}
+

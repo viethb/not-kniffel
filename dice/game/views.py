@@ -28,16 +28,17 @@ def new_game(request, user_id):
 
 
 def roll_dice(request, game_id, dice_to_keep=''):
+    that_number = 400
     if request.method == 'POST' and request.POST.get('points'):
         points = int(request.POST.get('points'))
         print(f' POINTS = {points}')
         game = Game.objects.get(id=game_id)
-        game.score_sheet[request.POST.get('category')] = points - 300
+        game.score_sheet[request.POST.get('category')] = points - that_number
         # Rundenanzahl prüfen und ggf. korrekt setzen
         if game.round % 4 != 0:
             game.round = game.round + (4 - game.round % 4)
         game.save()
-        messages.success(request, f'Points = {points}')
+        messages.success(request, f'Eingetragen = {points}')
         return HttpResponseRedirect(reverse_lazy('roll',
                                                  kwargs={'game_id': game_id}))
 
@@ -74,7 +75,7 @@ def roll_dice(request, game_id, dice_to_keep=''):
 
     for key in scores:
         if scores[key] == 1000:
-            scores[key] = check_possible_points(game, numbers, key)
+            scores[key] = check_possible_points(game, numbers, key, that_number)
 
     if request.method == 'GET':
         game.round = game.round + 1
@@ -83,13 +84,18 @@ def roll_dice(request, game_id, dice_to_keep=''):
     print(f'Scores-Variable: {scores}\n score_sheet: {game.score_sheet}')
 
     template = 'game/dice.html' if (game.round % 4 != 1) else 'game/dice_round1.html'
+
+    images = ['img/die_0.png', 'img/die_1.png', 'img/die_2.png', 'img/die_3.png', 'img/die_4.png', 'img/die_5.png', 'img/die_6.png']
     return render(request, template, {'page_title': 'Würfeln',
                                       'game': game_id,
                                       'user': game.user.name,
                                       'dice': dice,
                                       'dice_to_keep': dice_to_keep,
                                       'scores': scores,
-                                      'round': game.round % 4})
+                                      'round': game.round % 4,
+                                      'number': that_number,
+                                      'images': images,
+                                      'upper': [('Einsen', 'ones'), ('Zweien', 'twos'), ('Dreien', 'threes'), ('Vieren', 'fours'), ('Fünfen', 'fives'), ('Sechsen', 'sixes')]})
     # else:
     #     return render(request, 'game/dice_round1.html', {'page_title': 'Würfeln',
     #                                               'game': game_id,
@@ -108,7 +114,7 @@ def count_numbers(dice):
 
 # Berechnet die mögliche Punktzahl für die angegebene Kategorie;
 # sind keine Punkte möglich, wird 1000 zurückgegeben
-def check_possible_points(game, numbers, category):
+def check_possible_points(game, numbers, category, that_number):
     points = 1000
     if category == 'ones':
         points = numbers[0] * 1
@@ -132,18 +138,18 @@ def check_possible_points(game, numbers, category):
                         scores['sixes']}:
             # wenn die Summe der oberen Punkte >= 63, wird der Bonus von 35 Punkten eingetragen
             if sum((scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
-                    scores['sixes'], 1800)) >= 63:
-                game.score_sheet['bonus'] = 35 - 300
+                    scores['sixes'], 6*that_number)) >= 63:
+                game.score_sheet['bonus'] = 35 - that_number
                 # game.save()
-                return 35 - 300
+                return 35 - that_number
             else:
-                game.score_sheet['bonus'] = -300
-                return -300
+                game.score_sheet['bonus'] = -that_number
+                return -that_number
     elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000 and game.score_sheet['upper_sum'] == 1000:
         scores = game.score_sheet
         game.score_sheet['upper_sum'] = sum(
             (scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'], scores['sixes'],
-             scores['bonus'])) + 2100 - 300  # Die -300 Punkte aller 7 Summanden bereinigen
+             scores['bonus'])) + 7 * that_number - that_number  # Die -that_number Punkte aller 7 Summanden bereinigen
         return game.score_sheet['upper_sum']
     elif category == 'triple':
         if not (3 in numbers or 4 in numbers or 5 in numbers):
@@ -182,16 +188,16 @@ def check_possible_points(game, numbers, category):
     elif category == 'lower_sum':
         scores = game.score_sheet
         lower_sum = sum((scores['triple'], scores['quadruple'], scores['fullhouse'], scores['small'], scores['big'],
-                        scores['kniffel'], scores['chance'], 2100))
+                        scores['kniffel'], scores['chance'], 7*that_number))
         print(f'lower_sum: {lower_sum}')
         if lower_sum < 1000:
-            game.score_sheet['lower_sum'] = lower_sum - 300
-            return lower_sum - 300
+            game.score_sheet['lower_sum'] = lower_sum - that_number
+            return lower_sum - that_number
     elif category == 'final_sum':
-        final_sum = game.score_sheet['upper_sum'] + game.score_sheet['lower_sum'] + 600
+        final_sum = game.score_sheet['upper_sum'] + game.score_sheet['lower_sum'] + 2*that_number
         if final_sum < 1000:
-            game.score_sheet['final_sum'] = final_sum - 300
-            return final_sum - 300
+            game.score_sheet['final_sum'] = final_sum - that_number
+            return final_sum - that_number
     if points == 0:
         return 1000
     return points
