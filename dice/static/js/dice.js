@@ -1,10 +1,20 @@
 {
     "use strict";
 
-    var message_ele = document.getElementsByClassName("alert alert-success alert-dismissible fade show");
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const ids = ['first', 'second', 'third', 'fourth', 'fifth'];
+    const names = ['keep_1', 'keep_2', 'keep_3', 'keep_4', 'keep_5']
+    function checkChecked(name, id){
+        if (urlParams.has(name)) {
+            try {
+              document.getElementById(id).checked = true;
+            }
+            catch (err){}
+        }
+    }
 
-    setTimeout(function(){
-        console.log("Hello");
-        message_ele.style.display = "none";
-    }, 1000);
+    for (let i = 0; i < ids.length; i++){
+        checkChecked(names[i], ids[i]);
+    }
 }

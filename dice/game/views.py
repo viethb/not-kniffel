@@ -42,6 +42,24 @@ def roll_dice(request, game_id, dice_to_keep=''):
         return HttpResponseRedirect(reverse_lazy('roll',
                                                  kwargs={'game_id': game_id}))
 
+    if request.method == 'POST' and request.POST.get('finish'):
+        game = Game.objects.get(id=game_id)
+        score = game.score_sheet['final_sum'] + that_number
+        top_users = User.objects.all().order_by('-score')[:5]
+        if len(top_users) < 6:
+            user = game.user
+            user.score = score
+            user.save()
+        elif score > top_users[4].score:
+            top_users[4].delete()
+            user = game.user
+            user.score = score
+            user.save()
+        else:
+            game.user.delete()
+        game.delete()
+        return HttpResponseRedirect(reverse_lazy('get_score'))
+
     if request.method == 'GET' and request.GET.get('roll'):
         #dice_to_keep = request.GET.get('dice_to_keep')
         dice_to_keep = '0'
@@ -55,7 +73,6 @@ def roll_dice(request, game_id, dice_to_keep=''):
             dice_to_keep += '4'
         if request.GET.get('keep_5'):
             dice_to_keep += '5'
-        #dice_to_keep = dice_to_keep if dice_to_keep is not None else '0'
 
     game = Game.objects.get(id=game_id)
     dice = game.dice
@@ -83,10 +100,8 @@ def roll_dice(request, game_id, dice_to_keep=''):
     game.save()
     print(f'Scores-Variable: {scores}\n score_sheet: {game.score_sheet}')
 
-    template = 'game/dice.html' if (game.round % 4 != 1) else 'game/dice_round1.html'
-
     images = ['img/die_0.png', 'img/die_1.png', 'img/die_2.png', 'img/die_3.png', 'img/die_4.png', 'img/die_5.png', 'img/die_6.png']
-    return render(request, template, {'page_title': 'Würfeln',
+    return render(request, 'game/dice.html', {'page_title': 'Würfeln',
                                       'game': game_id,
                                       'user': game.user.name,
                                       'dice': dice,
@@ -95,15 +110,11 @@ def roll_dice(request, game_id, dice_to_keep=''):
                                       'round': game.round % 4,
                                       'number': that_number,
                                       'images': images,
-                                      'upper': [('Einsen', 'ones'), ('Zweien', 'twos'), ('Dreien', 'threes'), ('Vieren', 'fours'), ('Fünfen', 'fives'), ('Sechsen', 'sixes')]})
-    # else:
-    #     return render(request, 'game/dice_round1.html', {'page_title': 'Würfeln',
-    #                                               'game': game_id,
-    #                                               'dice': dice,
-    #                                               'dice_to_keep': dice_to_keep,
-    #                                               'scores': scores,
-    #                                               'round': game.round % 4})
-
+                                      'upper': [('Einsen', 'ones'), ('Zweien', 'twos'), ('Dreien', 'threes'),
+                                                ('Vieren', 'fours'), ('Fünfen', 'fives'), ('Sechsen', 'sixes')],
+                                      'lower': [('Drilling', 'triple'), ('Vierling', 'quadruple'),
+                                                ('Full House', 'fullhouse'), ('Kl. Straße', 'small'),
+                                                ('Gr. Straße', 'big'), ('Kniffel', 'kniffel'), ('Chance', 'chance')]})
 
 def count_numbers(dice):
     numbers = [0, 0, 0, 0, 0, 0]
@@ -201,94 +212,6 @@ def check_possible_points(game, numbers, category, that_number):
     if points == 0:
         return 1000
     return points
-
-
-# class Game:
-
-# def __init__(self):
-#     self.dice = [1, 1, 1, 1, 1]
-#     self.scores = {'ones': 0, 'twos': 0, 'threes': 0, 'fours': 0, 'fives': 0, 'sixes': 0, 'triple': 0,
-#                    'quadruple': 0, 'fullhouse': 0, 'small': 0, 'big': 0, 'kniffel': 0, 'chance': 0}
-#
-# def get_dice(self, request, dice_to_keep=''):
-#
-#     print(self.dice)
-#
-#     dice_list = [int(x) for x in dice_to_keep if x.isdigit()]
-#     print(dice_list)
-#     time_delta = {
-#         'CET': 0,
-#         'BRT': -4,
-#         'CDT': -5,
-#         'GMT': 1000,
-#     }
-#
-#     for i in range(len(self.dice)):
-#         if i + 1 not in dice_list:
-#             self.dice[i] = random.randint(1, 6)
-#
-#     numbers = self.count_numbers()
-#
-#     for key in self.scores:
-#         self.scores[key] = self.check_possible_points(numbers, key)
-#
-#     # return render(request, 'game/dice.html', {'page_title': 'Würfeln',
-#     #                                           'dice': self.dice,
-#     #                                           'scores': scores})
-#
-# def count_numbers(self):
-#     numbers = [0, 0, 0, 0, 0, 0]
-#     for die in self.dice:
-#         numbers[die - 1] += 1
-#     return numbers
-#
-# def check_possible_points(self, numbers, category):
-#     points = 0
-#     if category == 'ones':
-#         points = numbers[0] * 1
-#     elif category == 'twos':
-#         points = numbers[1] * 2
-#     elif category == 'threes':
-#         points = numbers[2] * 3
-#     elif category == 'fours':
-#         points = numbers[3] * 4
-#     elif category == 'fives':
-#         points = numbers[4] * 5
-#     elif category == 'sixes':
-#         points = numbers[5] * 6
-#     elif category == 'triple':
-#         if not (3 in numbers or 4 in numbers or 5 in numbers):
-#             return points
-#         for i in range(len(numbers)):
-#             points += (i + 1) * numbers[i]
-#     elif category == 'quadruple':
-#         print(f'In quadruple, numbers = {numbers}')
-#         if not (4 in numbers or 5 in numbers):
-#             return points
-#         for i in range(len(numbers)):
-#             points += (i + 1) * numbers[i]
-#     elif category == 'fullhouse':
-#         if 2 in numbers and 3 in numbers:
-#             return 25
-#     elif category == 'small':
-#         if numbers.count(0) <= 2 and \
-#                 (numbers[0] in (1, 2) and numbers[1] in (1, 2) and numbers[2] in (1, 2) and numbers[3] in (1, 2)
-#                  or numbers[1] in (1, 2) and numbers[2] in (1, 2) and numbers[3] in (1, 2) and numbers[4] in (1, 2)
-#                  or numbers[2] in (1, 2) and numbers[3] in (1, 2) and numbers[4] in (1, 2) and numbers[5]) in (
-#         1, 2):
-#             return 30
-#     elif category == 'big':
-#         if numbers.count(0) <= 1 and \
-#                 (numbers[0] == numbers[1] == numbers[2] == numbers[3] == numbers[4]
-#                  or numbers[1] == numbers[2] == numbers[3] == numbers[4] == numbers[5]):
-#             return 40
-#     elif category == 'kniffel':
-#         if 5 in numbers:
-#             return 50
-#     elif category == 'chance':
-#         for i in range(len(numbers)):
-#             points += (i + 1) * numbers[i]
-#     return points
 
 
 def add_user(request):

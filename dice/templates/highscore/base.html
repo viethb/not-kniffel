@@ -1,16 +1,13 @@
-{% load bootstrap4 %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{{ page_title }}</title>
-
-    {%  bootstrap_css %}
-    {%  bootstrap_javascript jquery='full' %}
+    <link href="https://unpkg.com/sanitize.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'css/dice.css' %}">
 </head>
 <body>
-
-{%  bootstrap_messages %}
 
 <h2>{{ page_title }}</h2>
 

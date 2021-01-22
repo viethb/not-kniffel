@@ -1,12 +1,11 @@
 {%  extends 'game/base.html' %}
-{% load bootstrap4 %}
 
 {% block content%}
 
     <form action="" enctype="multipart/form-data" method="POST" class="form-row">
         {% csrf_token %}
-        {% bootstrap_form form %}
-        <button type="submit" class="btn btn-primary">Hinzufügen</button>
+        {{ form.as_p }}
+        <button type="submit">Spiel starten</button>
     </form>
 
 {%  endblock %}
