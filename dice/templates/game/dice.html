@@ -16,7 +16,6 @@
             <input type="hidden" value="{{ scores.final_sum|add:400 }}" name="finish"/>
             <button type="submit" name="finish-button">Spiel abschließen</button>
         </form>
-
     {% else %}
         <form action="" method="get" class="form-row">
             {%  if round == 0 %}
