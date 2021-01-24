@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'highscore',
     'game',
-    'bootstrap4',
 ]
 
 MIDDLEWARE = [
