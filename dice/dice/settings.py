@@ -87,13 +87,21 @@ WSGI_APPLICATION = 'dice.wsgi.application'
 # }
 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'dicedb',
+    #     'USER': 'viethb',
+    #     'PASSWORD': 'HierkaNNm4nkn!fFeln',
+    #     'HOST': 'localhost',
+    #     'PORT': '',
+    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'dicedb',
         'USER': 'viethb',
         'PASSWORD': 'HierkaNNm4nkn!fFeln',
-        'HOST': 'localhost',
-        'PORT': '',
+        'HOST': 'dicedb-instance.cw7qm65epek9.eu-central-1.rds.amazonaws.com',
+        'PORT': '5432',
     }
 }
 
