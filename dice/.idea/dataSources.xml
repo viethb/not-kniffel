@@ -12,5 +12,11 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="dicedb@localhost" uuid="356d394b-54c3-4126-b4bb-32ac39e483a2">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://localhost:5432/dicedb</jdbc-url>
+    </data-source>
   </component>
 </project>

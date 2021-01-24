@@ -17,4 +17,12 @@
     for (let i = 0; i < ids.length; i++){
         checkChecked(names[i], ids[i]);
     }
+
+    /* make Info-Message dissappear after 1,5s */
+    let message_ele = document.getElementsByClassName("alert-info");
+    setTimeout(function(){
+        if (message_ele.length > 0){
+            message_ele[0].style.display = "none";
+        }
+    },1500);
 }

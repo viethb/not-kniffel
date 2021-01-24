@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from game.models import *
 from game.forms import *
 import random
+import json
 
 
 # Create your views here.
@@ -29,6 +30,7 @@ def roll_dice(request, game_id, dice_to_keep=''):
         print(f' POINTS = {points}')
         game = Game.objects.get(id=game_id)
         game.score_sheet[request.POST.get('category')] = points - that_number
+        messages.info(request, f'{points} Punkte gespeichert')
         # Rundenanzahl prüfen und ggf. korrekt setzen
         if game.round % 4 != 0:
             game.round = game.round + (4 - game.round % 4)
@@ -56,10 +58,11 @@ def roll_dice(request, game_id, dice_to_keep=''):
         return HttpResponseRedirect(reverse_lazy('get_score'))
 
     # nicht ausgewählte Würfel würfeln und mögliche Punkte berechnen
-    if request.method == 'GET' :
+    if request.method == 'GET':
         game = Game.objects.get(id=game_id)
         dice = game.dice
-        scores = dict(game.score_sheet)
+        scores = json.loads(json.dumps(game.score_sheet))
+        print(f'scores: {scores}')
         game.round = game.round + 1
         dice_to_keep = '0'
 
@@ -75,19 +78,22 @@ def roll_dice(request, game_id, dice_to_keep=''):
             if request.GET.get('keep_5'):
                 dice_to_keep += '5'
 
-            print(scores)
-            print(dice)
+            print(f'dice: {dice}')
 
             dice_list = [int(x) for x in dice_to_keep if x.isdigit()]
-            print(dice_list)
+            print(f'dice_list: {dice_list}')
 
             for i in range(len(dice)):
                 if i + 1 not in dice_list:
                     dice[i] = random.randint(1, 6)
 
+            print(f'dice nach Würfeln: {dice}')
             numbers = count_numbers(dice)
 
+            print(f'numbers: {numbers}')
+
             for key in scores:
+                print(f'scores[{key}]: {scores[key]}')
                 if scores[key] == 1000:
                     scores[key] = check_possible_points(game, numbers, key, that_number)
 
@@ -110,8 +116,10 @@ def roll_dice(request, game_id, dice_to_keep=''):
                                                   'round': game.round % 4,
                                                   'number': that_number,
                                                   'images': images,
-                                                  'upper': [('Einsen', 'ones'), ('Zweien', 'twos'), ('Dreien', 'threes'),
-                                                            ('Vieren', 'fours'), ('Fünfen', 'fives'), ('Sechsen', 'sixes')],
+                                                  'upper': [('Einsen', 'ones'), ('Zweien', 'twos'),
+                                                            ('Dreien', 'threes'),
+                                                            ('Vieren', 'fours'), ('Fünfen', 'fives'),
+                                                            ('Sechsen', 'sixes')],
                                                   'lower': [('Drilling', 'triple'), ('Vierling', 'quadruple'),
                                                             ('Full House', 'fullhouse'), ('Kl. Straße', 'small'),
                                                             ('Gr. Straße', 'big'), ('Kniffel', 'kniffel'),
@@ -143,10 +151,9 @@ def check_possible_points(game, numbers, category, that_number):
         points = numbers[5] * 6
     elif category == 'bonus':
         print('In bonus')
-        scores = game.score_sheet
-        print(f'Scores: {scores}')
-        print(
-            f'1000 not in list: {1000 not in {scores["ones"], scores["twos"], scores["threes"], scores["fours"], scores["fives"], scores["sixes"]}}')
+        scores = json.loads(json.dumps(game.score_sheet))
+        # print(
+        # f'1000 not in list: {1000 not in {scores["ones"], scores["twos"], scores["threes"], scores["fours"], scores["fives"], scores["sixes"]}}')
         # prüft, ob alle oberen Kategorien ausgefüllt sind;
         if 1000 not in {scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
                         scores['sixes']}:
@@ -159,8 +166,9 @@ def check_possible_points(game, numbers, category, that_number):
             else:
                 game.score_sheet['bonus'] = -that_number
                 return -that_number
-    elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000 and game.score_sheet['upper_sum'] == 1000:
-        scores = game.score_sheet
+    elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000 and \
+            game.score_sheet['upper_sum'] == 1000:
+        scores = json.loads(json.dumps(game.score_sheet))
         game.score_sheet['upper_sum'] = sum(
             (scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'], scores['sixes'],
              scores['bonus'])) + 7 * that_number - that_number  # Die -that_number Punkte aller 7 Summanden bereinigen
@@ -200,7 +208,7 @@ def check_possible_points(game, numbers, category, that_number):
         for i in range(len(numbers)):
             points += (i + 1) * numbers[i]
     elif category == 'lower_sum':
-        scores = game.score_sheet
+        scores = json.loads(json.dumps(game.score_sheet))
         lower_sum = sum((scores['triple'], scores['quadruple'], scores['fullhouse'], scores['small'], scores['big'],
                          scores['kniffel'], scores['chance'], 7 * that_number))
         print(f'lower_sum: {lower_sum}')
@@ -208,7 +216,8 @@ def check_possible_points(game, numbers, category, that_number):
             game.score_sheet['lower_sum'] = lower_sum - that_number
             return lower_sum - that_number
     elif category == 'final_sum':
-        final_sum = game.score_sheet['upper_sum'] + game.score_sheet['lower_sum'] + 2 * that_number
+        final_sum = game.score_sheet['upper_sum'] + game.score_sheet[
+            'lower_sum'] + 2 * that_number
         if final_sum < 1000:
             game.score_sheet['final_sum'] = final_sum - that_number
             return final_sum - that_number
@@ -224,8 +233,6 @@ def add_user(request):
         form = UsersForm(request.POST)
         if form.is_valid():
             new_user = form.save()
-            messages.success(request, 'User gespeichert.')
-            print(f'user_id: {new_user.id}')
             return HttpResponseRedirect(reverse_lazy('new_game', kwargs={'user_id': new_user.id}))
         else:
             messages.error(request, 'Name ungültig.')

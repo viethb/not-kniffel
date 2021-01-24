@@ -23,7 +23,7 @@ body {
 
 h3 {
     margin-bottom: 5px;
-    margin-top: 5px;
+    margin-top: 20px;
 }
 
 input[type="checkbox"] {
@@ -37,17 +37,17 @@ img {
 
 label{
     display: inline-block;
-    padding: 5px;
+    padding: 0.4rem;
     padding-bottom: 0;
     margin-bottom: 1.5rem;
 }
 
 :checked + label {
     background-color: var(--accentColor);
-    border: 5px solid var(--accentColor);
+    border: 0.4rem solid var(--accentColor);
     border-radius: 20%;
     padding: 0;
-    margin-bottom: 0;
+    margin-bottom: 1.1rem
 }
 
 p{
@@ -91,11 +91,6 @@ th {
     line-height: 1.2rem;
 }
 
-#dicecontainer {
-    margin-left: auto;
-    margin-right: auto;
-}
-
 button {
     border: none;
     background-color: var(--accentColor);
@@ -103,6 +98,15 @@ button {
     filter: drop-shadow(5px 5px 5px #222);
     padding: 5px;
     margin-bottom: 1.5rem;
+}
+
+#dicecontainer {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#finish-button{
+    margin: 2.95rem 0;
 }
 
 #roll {
@@ -174,11 +178,20 @@ button {
 }
 
 .no-label {
-    margin: 5px;
+    margin: 0.4rem;
     margin-bottom: 1.5rem;
 }
 
 .saved-points {
     font-weight: bold;
+}
+
+.alert-info {
+    display: inline-block;
+    background-color: var(--highlightColor_light);
+    font-size: 0.7rem;
+    position: absolute;
+    top: 0;
+    left: 47vw;
 }
 
