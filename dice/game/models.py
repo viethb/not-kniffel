@@ -1,8 +1,4 @@
 from django.db import models
-# import jsonfield
-# Create your models here.
-# from django.contrib.postgres.fields import JSONField
-
 from django.core.validators import RegexValidator
 
 alphanumeric = RegexValidator(r'^[0-9a-zA-Z ]*$', 'Bitte nur Buchstaben und Zahlen eingeben')

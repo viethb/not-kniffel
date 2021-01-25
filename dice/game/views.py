@@ -2,8 +2,6 @@ from django.shortcuts import render
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.http import HttpResponse
-from game.models import *
 from game.forms import *
 import random
 import json
@@ -27,7 +25,6 @@ def roll_dice(request, game_id, dice_to_keep=''):
     # Punkte im score_sheet speichern
     if request.method == 'POST' and request.POST.get('points'):
         points = int(request.POST.get('points'))
-        print(f' POINTS = {points}')
         game = Game.objects.get(id=game_id)
         game.score_sheet[request.POST.get('category')] = points - that_number
         messages.info(request, f'{points} Punkte gespeichert')
@@ -62,10 +59,10 @@ def roll_dice(request, game_id, dice_to_keep=''):
         game = Game.objects.get(id=game_id)
         dice = game.dice
         scores = json.loads(json.dumps(game.score_sheet))
-        print(f'scores: {scores}')
         game.round = game.round + 1
         dice_to_keep = '0'
 
+        # Punkte werden nur geprüft, wenn gerade gewürfelt wurde, also nicht in Runde 1
         if game.round % 4 != 1:
             if request.GET.get('keep_1'):
                 dice_to_keep += '1'
@@ -78,32 +75,26 @@ def roll_dice(request, game_id, dice_to_keep=''):
             if request.GET.get('keep_5'):
                 dice_to_keep += '5'
 
-            print(f'dice: {dice}')
-
             dice_list = [int(x) for x in dice_to_keep if x.isdigit()]
-            print(f'dice_list: {dice_list}')
 
             for i in range(len(dice)):
                 if i + 1 not in dice_list:
                     dice[i] = random.randint(1, 6)
 
-            print(f'dice nach Würfeln: {dice}')
             numbers = count_numbers(dice)
 
-            print(f'numbers: {numbers}')
-
+            # berechnet mögliche Punktzahl, wenn noch keine Punkte gespeichert sind
             for key in scores:
-                print(f'scores[{key}]: {scores[key]}')
                 if scores[key] == 1000:
                     scores[key] = check_possible_points(game, numbers, key, that_number)
 
             game.dice = dice
+        # In Runde 1 werden nur mögliche Ergebnisse berechnet, damit diese sofort angezeigt werden
         else:
             for key in ['bonus', 'upper_sum', 'lower_sum', 'final_sum']:
                 if scores[key] == 1000:
                     scores[key] = check_possible_points(game, [0, 0, 0, 0, 0, 0], key, that_number)
         game.save()
-        print(f'Scores-Variable: {scores}\n score_sheet: {game.score_sheet}')
 
         images = ['img/die_0.png', 'img/die_1.png', 'img/die_2.png', 'img/die_3.png', 'img/die_4.png', 'img/die_5.png',
                   'img/die_6.png']
@@ -126,6 +117,7 @@ def roll_dice(request, game_id, dice_to_keep=''):
                                                             ('Chance', 'chance')]})
 
 
+# Anzahl der gewürfelten 1en, 2en etc zählen
 def count_numbers(dice):
     numbers = [0, 0, 0, 0, 0, 0]
     for die in dice:
@@ -150,10 +142,7 @@ def check_possible_points(game, numbers, category, that_number):
     elif category == 'sixes':
         points = numbers[5] * 6
     elif category == 'bonus':
-        print('In bonus')
         scores = json.loads(json.dumps(game.score_sheet))
-        # print(
-        # f'1000 not in list: {1000 not in {scores["ones"], scores["twos"], scores["threes"], scores["fours"], scores["fives"], scores["sixes"]}}')
         # prüft, ob alle oberen Kategorien ausgefüllt sind;
         if 1000 not in {scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
                         scores['sixes']}:
@@ -161,11 +150,10 @@ def check_possible_points(game, numbers, category, that_number):
             if sum((scores['ones'], scores['twos'], scores['threes'], scores['fours'], scores['fives'],
                     scores['sixes'], 6 * that_number)) >= 63:
                 game.score_sheet['bonus'] = 35 - that_number
-                # game.save()
                 return 35 - that_number
             else:
                 game.score_sheet['bonus'] = -that_number
-                return -that_number
+                return - that_number
     elif category == 'upper_sum' and game.score_sheet['bonus'] != 1000 and \
             game.score_sheet['upper_sum'] == 1000:
         scores = json.loads(json.dumps(game.score_sheet))
@@ -211,7 +199,6 @@ def check_possible_points(game, numbers, category, that_number):
         scores = json.loads(json.dumps(game.score_sheet))
         lower_sum = sum((scores['triple'], scores['quadruple'], scores['fullhouse'], scores['small'], scores['big'],
                          scores['kniffel'], scores['chance'], 7 * that_number))
-        print(f'lower_sum: {lower_sum}')
         if lower_sum < 1000:
             game.score_sheet['lower_sum'] = lower_sum - that_number
             return lower_sum - that_number

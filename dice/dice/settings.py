@@ -27,7 +27,9 @@ SECRET_KEY = 'y3d4_wwqt^t$h96y1uy#bw3$pi%5-1^*o9_tqma7-1m&xfmio7'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'viethb.pythonanywhere.com'
+    'viethb.pythonanywhere.com',
+    '127.0.0.1',
+    'ec2-52-28-84-63.eu-central-1.compute.amazonaws.com'
 ]
 
 
@@ -79,6 +81,7 @@ WSGI_APPLICATION = 'dice.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
+# lokale sqlite
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
@@ -86,6 +89,7 @@ WSGI_APPLICATION = 'dice.wsgi.application'
 #     }
 # }
 
+# postgresql lokal und remote
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',

@@ -10,6 +10,8 @@
             </div>
         {% endfor %}
     {% endif %}
+    <!-- wenn überall Werte eingetragen sind, kann nicht mehr gewürfelt werden,
+         es wird ein Button zum Abschließen des Spiels angezeigt -->
     {% if scores.final_sum < 1000%}
         <h3>Glückwunsch, alle Felder eingetragen!</h3>
         <form action="" method="post" class="form-row">
@@ -25,15 +27,15 @@
         {% else %}
             <h3>Wurf: {{ round|add:"-1" }}</h3>
         {% endif %}
-
-
         <form action="" method="get" class="form-row">
+            <!-- Nach dem dritten Wurf werden die Würfel angezeigt, ohne dass erneut gewürfelt werden kann -->
             {%  if round == 0 %}
                 <img class="no-label" src="{% static images|get_index:dice.0 %}" alt={{ dice.0 }} />
                 <img class="no-label" src="{% static images|get_index:dice.1 %}" alt={{ dice.1 }} />
                 <img class="no-label" src="{% static images|get_index:dice.2 %}" alt={{ dice.2 }} />
                 <img class="no-label" src="{% static images|get_index:dice.3 %}" alt={{ dice.3 }} />
                 <img class="no-label" src="{% static images|get_index:dice.4 %}" alt={{ dice.4 }} />
+            <!-- Vor dem ersten Wurf wurde Würfel ohne Wert angezeigt -->
             {% elif round == 1  %}
                 <div id="spacing"></div>
                 <img class="no-label" src="{% static "img/die_0.png" %}" alt="?" />
@@ -42,6 +44,8 @@
                 <img class="no-label" src="{% static "img/die_0.png" %}" alt="?" />
                 <img class="no-label" src="{% static "img/die_0.png" %}" alt="?" />
                 <input type="submit" id="roll" value="Würfeln" name="roll"/>
+            <!-- In den anderen Runden werden markierbare Würfel angezeigt
+                 angeklickte (checked) Würfel werden in der view als dice_to_keep ausgewertet -->
             {%  else %}
                 <div id="dicecontainer">
                     <div id="spacing"></div>
@@ -60,12 +64,14 @@
             {% endif %}
         </form>
     {%  endif %}
-
+    <!-- Die Tabelle mit gespeicherten und je nach Runde auch den ggf. möglichen Punkten wird angezeigt -->
     <table>
-            <tr>
-                <th></th>
-                <th>{{ user }}</th>
-            </tr>
+        <tr>
+            <th></th>
+            <th>{{ user }}</th>
+        </tr>
+        <!-- Ein pair besteht jeweils aus (Anzeigename, Backendbezeichnung), z. B. ('Einsen', 'ones') -->
+        <!-- upper enthält die Paare für die obere Tabellenhälfte (siehe game\views.py Z.110) -->
         {% for pair in upper %}
             <tr>
             {%  with score=scores|get_index:pair.1 category=pair.1 %}
@@ -93,29 +99,6 @@
                         </form>
                     </td>
                 {% endif %}
-                {% comment %}{% if score < 1000 and round != 1 %} <!-- wenn Punkte gespeichert oder möglich -->
-                    {% if score > 0 %} <!-- wenn noch keine Punkte gespeichert -->
-                        <td class="possible-points">
-                            {{ score}}
-                            <form action="" method="post" class="form-row">
-                                {% csrf_token %}
-                                <input type="hidden" value="{{ score }}" name="points"/>
-                                <button type="submit" class="cell-button" value={{ category }} name="category">Eintragen</button>
-                            </form>
-                        </td>
-                    {% elif round != 1 %} <!-- wenn bereits Punkte gespeichert wurden -->
-                        <td>{{ score|add:number }}</td>
-                    {% endif %}
-                {%  else %}
-                    <td class="no-possible-points">
-                        <span>Streichen</span>
-                        <form action="" method="post" class="form-row">
-                            {% csrf_token %}
-                            <input type="hidden" value="0" name="points"/>
-                            <button type="submit" class="cell-button" value={{ category }} name="category">Streichen</button>
-                        </form>
-                    </td>
-                {% endif %}{% endcomment %}
             {% endwith %}
         </tr>
         {% endfor %}
@@ -135,6 +118,8 @@
                 <td id="upper"></td>
             {% endif %}
         </tr>
+        <!-- Ein pair besteht jeweils aus (Anzeigename, Backendbezeichnung), z. B. ('Einsen', 'ones') -->
+        <!-- lower enthält die Paare für die untere Tabellenhälfte (siehe game\views.py Z.114) -->
         {% for pair in lower %}
             <tr>
             {%  with score=scores|get_index:pair.1 category=pair.1 %}
