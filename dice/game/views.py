@@ -20,7 +20,7 @@ def new_game(request, user_id):
                                              kwargs={'game_id': game_id}))
 
 
-def roll_dice(request, game_id, dice_to_keep=''):
+def roll_dice(request, game_id):
     that_number = 400
     # Punkte im score_sheet speichern
     if request.method == 'POST' and request.POST.get('points'):
@@ -60,22 +60,20 @@ def roll_dice(request, game_id, dice_to_keep=''):
         dice = game.dice
         scores = json.loads(json.dumps(game.score_sheet))
         game.round = game.round + 1
-        dice_to_keep = '0'
+        dice_list = []
 
         # Punkte werden nur geprüft, wenn gerade gewürfelt wurde, also nicht in Runde 1
         if game.round % 4 != 1:
             if request.GET.get('keep_1'):
-                dice_to_keep += '1'
+                dice_list.append(1)
             if request.GET.get('keep_2'):
-                dice_to_keep += '2'
+                dice_list.append(2)
             if request.GET.get('keep_3'):
-                dice_to_keep += '3'
+                dice_list.append(3)
             if request.GET.get('keep_4'):
-                dice_to_keep += '4'
+                dice_list.append(4)
             if request.GET.get('keep_5'):
-                dice_to_keep += '5'
-
-            dice_list = [int(x) for x in dice_to_keep if x.isdigit()]
+                dice_list.append(5)
 
             for i in range(len(dice)):
                 if i + 1 not in dice_list:
@@ -99,10 +97,8 @@ def roll_dice(request, game_id, dice_to_keep=''):
         images = ['img/die_0.png', 'img/die_1.png', 'img/die_2.png', 'img/die_3.png', 'img/die_4.png', 'img/die_5.png',
                   'img/die_6.png']
         return render(request, 'game/dice.html', {'page_title': 'Würfeln',
-                                                  'game': game_id,
                                                   'user': game.user.name,
                                                   'dice': dice,
-                                                  'dice_to_keep': dice_to_keep,
                                                   'scores': scores,
                                                   'round': game.round % 4,
                                                   'number': that_number,

@@ -45,7 +45,7 @@
                 <img class="no-label" src="{% static "img/die_0.png" %}" alt="?" />
                 <input type="submit" id="roll" value="Würfeln" name="roll"/>
             <!-- In den anderen Runden werden markierbare Würfel angezeigt
-                 angeklickte (checked) Würfel werden in der view als dice_to_keep ausgewertet -->
+                 angeklickte (checked) Würfel werden in der view als dice_list ausgewertet -->
             {%  else %}
                 <div id="dicecontainer">
                     <div id="spacing"></div>
@@ -82,7 +82,7 @@
                     <td></td>
                 {% elif score < 1000 %} <!-- keine Punkte gespeichert und neue Punkte möglich -->
                     <td class="possible-points">
-                        {{ score}}
+                        {{ score }}
                         <form action="" method="post" class="form-row">
                             {% csrf_token %}
                             <input type="hidden" value="{{ score }}" name="points"/>
