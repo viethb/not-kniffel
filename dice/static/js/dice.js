@@ -1,6 +1,7 @@
 {
     "use strict";
 
+    /* mark dice as checked when they were checked the round before */
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const ids = ['first', 'second', 'third', 'fourth', 'fifth'];
@@ -13,7 +14,6 @@
             catch (err){}
         }
     }
-
     for (let i = 0; i < ids.length; i++){
         checkChecked(names[i], ids[i]);
     }
