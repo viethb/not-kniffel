@@ -17,3 +17,6 @@ class Game(models.Model):
     score_sheet = models.JSONField()
     dice = models.JSONField()
     round = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'ID: {self.id}, User: {self.user.name}, Runde: {self.round}'
